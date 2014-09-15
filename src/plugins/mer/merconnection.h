@@ -123,6 +123,7 @@ private:
     void sshStmExec();
     bool sshStmStep();
 
+    void deleteConnection();
     void createConnection();
     void vmWantFastPollState(bool want);
     void vmPollState();

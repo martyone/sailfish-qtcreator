@@ -202,6 +202,8 @@ MerConnection::~MerConnection()
         if (--s_usedVmNames[m_vmName] == 0)
             s_usedVmNames.remove(m_vmName);
     }
+
+    deleteConnection();
 }
 
 void MerConnection::setVirtualMachine(const QString &virtualMachine)
@@ -431,7 +433,7 @@ void MerConnection::reset()
 
     // Just do the best for the possibly updated SSH parameters to get in effect
     if (m_sshState == SshConnectingError || m_sshState == SshConnectionLost)
-        delete m_connection; // see sshTryConnect()
+        deleteConnection(); // see sshTryConnect()
 
     if (!m_vmName.isEmpty() && !m_vmStatePollTimer.isActive()) {
         m_vmStatePollTimer.start(VM_STATE_POLLING_INTERVAL_NORMAL, this);
@@ -839,7 +841,7 @@ bool MerConnection::sshStmStep()
     switch (m_sshState) {
     case SshNotConnected:
         ON_ENTRY {
-            delete m_connection;
+            deleteConnection();
             vmStmScheduleExec();
         }
 
@@ -856,7 +858,7 @@ bool MerConnection::sshStmStep()
 
     case SshConnecting:
         ON_ENTRY {
-            delete m_connection;
+            deleteConnection();
             m_cachedSshError = QSsh::SshNoError;
             m_cachedSshErrorString.clear();
             createConnection();
@@ -950,7 +952,7 @@ bool MerConnection::sshStmStep()
 
     case SshDisconnected:
         ON_ENTRY {
-            delete m_connection;
+            deleteConnection();
             vmStmScheduleExec();
         }
 
@@ -992,6 +994,16 @@ bool MerConnection::sshStmStep()
 
 #undef ON_ENTRY
 #undef ON_EXIT
+}
+
+void MerConnection::deleteConnection()
+{
+    if (m_connection == 0) // accept null much like the plain delete does
+        return;
+
+    m_connection->disconnect(this);
+    m_connection->deleteLater();
+    m_connection = 0;
 }
 
 void MerConnection::createConnection()
@@ -1040,7 +1052,7 @@ void MerConnection::sshTryConnect()
                  * we would end trying-again endlessly, suppressing any SSH error. */
                 m_cachedSshError != QSsh::SshNoError)) {
         DBG << "SSH try connect";
-        delete m_connection;
+        deleteConnection();
         createConnection();
         m_connection->connectToHost();
     }
