@@ -647,19 +647,19 @@ bool MerConnection::vmStmStep()
         } else if (m_lockDownRequested) {
             // waiting for ssh connection to disconnect first
             if (m_sshState == SshNotConnected || m_sshState == SshDisconnected) {
-                vmStmTransition(VmSoftClosing, "lock down requested");
+                vmStmTransition(VmHardClosing, "lock down requested");
             }
         } else if (m_disconnectRequested) {
             // waiting for ssh connection to disconnect first
             if (m_sshState == SshNotConnected || m_sshState == SshDisconnected) {
                 if (!m_vmStartedOutside && !m_connectLaterRequested) {
-                    vmStmTransition(VmSoftClosing, "disconnect requested");
+                    vmStmTransition(VmHardClosing, "disconnect requested");
                 } else if (m_connectLaterRequested) {
                     if (!m_resetVmQuestionBox) {
                         openResetVmQuestionBox();
                     } else if (QAbstractButton *button = m_resetVmQuestionBox->clickedButton()) {
                         if (button == m_resetVmQuestionBox->button(QMessageBox::Yes)) {
-                            vmStmTransition(VmSoftClosing, "disconnect&connect later requested+reset allowed");
+                            vmStmTransition(VmHardClosing, "disconnect&connect later requested+reset allowed");
                         } else {
                             vmStmTransition(VmZombie, "disconnect&connect later requested+reset denied");
                         }
@@ -669,7 +669,7 @@ bool MerConnection::vmStmStep()
                         openCloseVmQuestionBox();
                     } else if (QAbstractButton *button = m_closeVmQuestionBox->clickedButton()) {
                         if (button == m_closeVmQuestionBox->button(QMessageBox::Yes)) {
-                            vmStmTransition(VmSoftClosing, "disconnect requested+close allowed");
+                            vmStmTransition(VmHardClosing, "disconnect requested+close allowed");
                         } else {
                             vmStmTransition(VmZombie, "disconnect requested+close denied");
                         }
@@ -695,7 +695,7 @@ bool MerConnection::vmStmStep()
             vmStmTransition(VmOff, "closed outside");
         } else if (m_lockDownRequested) {
             if (!m_lockDownFailed) { // prevent endless loop
-                vmStmTransition(VmSoftClosing, "lock down requested");
+                vmStmTransition(VmHardClosing, "lock down requested");
             }
         } else if (m_connectRequested) {
             vmStmTransition(VmRunning, "connect requested");
