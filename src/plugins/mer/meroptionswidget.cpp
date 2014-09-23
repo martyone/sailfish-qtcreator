@@ -64,6 +64,7 @@ MerOptionsWidget::MerOptionsWidget(QWidget *parent)
     connect(m_ui->startVirtualMachineButton, SIGNAL(clicked()), SLOT(onStartVirtualMachineButtonClicked()));
     connect(m_ui->sdkDetailsWidget, SIGNAL(testConnectionButtonClicked()), SLOT(onTestConnectionButtonClicked()));
     connect(m_ui->sdkDetailsWidget, SIGNAL(sshTimeoutChanged(int)), SLOT(onSshTimeoutChanged(int)));
+    connect(m_ui->sdkDetailsWidget, SIGNAL(wwwPortChanged(int)), SLOT(onWwwPortChanged(int)));
     connect(m_ui->sdkDetailsWidget, SIGNAL(headlessCheckBoxToggled(bool)), SLOT(onHeadlessCheckBoxToggled(bool)));
     connect(m_ui->sdkDetailsWidget, SIGNAL(srcFolderApplyButtonClicked(QString)), SLOT(onSrcFolderApplyButtonClicked(QString)));
     onSdksUpdated();
@@ -112,6 +113,8 @@ void MerOptionsWidget::store()
             sdk->setPrivateKeyFile(m_sshPrivKeys[sdk]);
         if (m_sshTimeout.contains(sdk))
             sdk->setTimeout(m_sshTimeout[sdk]);
+        if (m_wwwPort.contains(sdk))
+            sdk->setWwwPort(m_wwwPort[sdk]);
         if (m_headless.contains(sdk))
             sdk->setHeadless(m_headless[sdk]);
     }
@@ -130,6 +133,7 @@ void MerOptionsWidget::store()
 
     m_sshPrivKeys.clear();
     m_sshTimeout.clear();
+    m_wwwPort.clear();
     m_headless.clear();
 }
 
@@ -322,6 +326,11 @@ void MerOptionsWidget::update()
         else
             m_ui->sdkDetailsWidget->setSshTimeout(sdk->timeout());
 
+        if (m_wwwPort.contains(sdk))
+            m_ui->sdkDetailsWidget->setWwwPort(m_wwwPort[sdk]);
+        else
+            m_ui->sdkDetailsWidget->setWwwPort(sdk->wwwPort());
+
         if (m_headless.contains(sdk))
             m_ui->sdkDetailsWidget->setHeadless(m_headless[sdk]);
         else
@@ -347,6 +356,12 @@ void MerOptionsWidget::onSshTimeoutChanged(int timeout)
 {
     //store keys to be saved on save click
     m_sshTimeout[m_sdks[m_virtualMachine]] = timeout;
+}
+
+void MerOptionsWidget::onWwwPortChanged(int port)
+{
+    //store keys to be saved on save click
+    m_wwwPort[m_sdks[m_virtualMachine]] = port;
 }
 
 void MerOptionsWidget::onHeadlessCheckBoxToggled(bool checked)

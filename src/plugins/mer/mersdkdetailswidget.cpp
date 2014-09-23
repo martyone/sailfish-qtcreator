@@ -47,6 +47,7 @@ MerSdkDetailsWidget::MerSdkDetailsWidget(QWidget *parent)
     connect(m_ui->privateKeyPathChooser, SIGNAL(browsingFinished()), SLOT(onPathChooserEditingFinished()));
     connect(m_ui->testConnectionPushButton, SIGNAL(clicked()), SIGNAL(testConnectionButtonClicked()));
     connect(m_ui->sshTimeoutSpinBox, SIGNAL(valueChanged(int)), SIGNAL(sshTimeoutChanged(int)));
+    connect(m_ui->wwwPortSpinBox, SIGNAL(valueChanged(int)), SIGNAL(wwwPortChanged(int)));
     connect(m_ui->headlessCheckBox, SIGNAL(toggled(bool)), SIGNAL(headlessCheckBoxToggled(bool)));
     connect(m_ui->srcFolderApplyButton, SIGNAL(clicked()), SLOT(onSrcFolderApplyButtonClicked()));
 
@@ -77,7 +78,7 @@ void MerSdkDetailsWidget::setSdk(const MerSdk *sdk)
 {
     m_ui->nameLabelText->setText(sdk->virtualMachineName());
     m_ui->sshPortLabelText->setText(QString::number(sdk->sshPort()));
-    m_ui->wwwPortLabelText->setText(QString::number(sdk->wwwPort()));
+    m_ui->wwwPortSpinBox->setValue(sdk->wwwPort());
     m_ui->homeFolderPathLabel->setText(QDir::toNativeSeparators(sdk->sharedHomePath()));
     m_ui->targetFolderPathLabel->setText(QDir::toNativeSeparators(sdk->sharedTargetsPath()));
     m_ui->sshFolderPathLabel->setText(QDir::toNativeSeparators(sdk->sharedSshPath()));
@@ -123,6 +124,11 @@ void MerSdkDetailsWidget::setStatus(const QString &status)
 void MerSdkDetailsWidget::setSshTimeout(int timeout)
 {
     m_ui->sshTimeoutSpinBox->setValue(timeout);
+}
+
+void MerSdkDetailsWidget::setWwwPort(int port)
+{
+    m_ui->wwwPortSpinBox->setValue(port);
 }
 
 void MerSdkDetailsWidget::setHeadless(bool enabled)
